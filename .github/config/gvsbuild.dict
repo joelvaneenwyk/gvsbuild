@@ -5,6 +5,7 @@ envlist
 gvsbuild
 ipch
 lastversion
+lockfiles
 mccabe
 mypy
 opensdf
