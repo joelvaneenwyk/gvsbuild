@@ -44,7 +44,7 @@ def write_mark_file(directory, val, file_name=".wingtk-extracted-file"):
         fo.write(f"{val}\n")
 
 
-def extract_exec(
+def extract_exec(  # noqa: C901
     src,
     dest_dir,
     dir_part=None,
@@ -139,11 +139,15 @@ def extract_exec(
     else:
         # Ok, hoping it's a tarfile we can handle :)
         with tarfile.open(src) as tar:
-            members = list(__get_stripped_tar_members(tar) if strip_one else tar.getmembers())
+            members = list(
+                __get_stripped_tar_members(tar) if strip_one else tar.getmembers()
+            )
             try:
                 tar.extractall(dest_dir, members, filter="fully_trusted")
             except TypeError:
-                log.debug(f"Type exception extracting {src}, retrying without 'filter' argument.")
+                log.debug(
+                    f"Type exception extracting {src}, retrying without 'filter' argument."
+                )
                 tar.extractall(dest_dir, members)
 
     if check_mark:

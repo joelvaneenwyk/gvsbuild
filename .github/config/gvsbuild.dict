@@ -1,5 +1,6 @@
 addopts
 adwaita
+arcname
 asctime
 Casal
 cflags
@@ -31,6 +32,7 @@ lastversion
 levelname
 LIBPATH
 librsvg
+linkname
 lockfiles
 mccabe
 msbuild
@@ -38,6 +40,8 @@ Msvc
 msys
 Msys
 mypy
+nasm
+Nasm
 noconfirm
 nologo
 norecursedirs
@@ -57,10 +61,15 @@ Quinteiro
 Randomizer
 Redistributable
 reporthook
+rustup
+RUSTUP
 setuptools
+shellcheck
 showlocals
 srcdir
 SYSTEMROOT
+tarbomb
+tarbombs
 testenv
 testpaths
 typer
@@ -75,5 +84,6 @@ vssscc
 vswhere
 windir
 winget
+wingtk
 winv
 Yeaw
