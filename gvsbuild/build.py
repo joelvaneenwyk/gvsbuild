@@ -136,7 +136,7 @@ def build(
     ),
     patches_root_dir: Path = typer.Option(
         None,
-        help="The directory where you checked out https://github.com/wingtk/gvsbuild.git. Default is the build-dir\\github\\gvsbuild.",
+        help="The directory where you checked out https://github.com/joelvaneenwyk/gvsbuild.git. Default is the build-dir\\github\\gvsbuild.",
         rich_help_panel="Directory Options",
     ),
     tools_root_dir: Path = typer.Option(
