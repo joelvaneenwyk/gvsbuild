@@ -96,6 +96,11 @@ class PythonVersion(str, Enum):
     py38 = "3.8"
     py39 = "3.9"
     py310 = "3.10"
+    py311 = "3.11"
+    py312 = "3.12"
+    py313 = "3.13"
+    py314 = "3.14"
+    py315 = "3.15"
 
 
 def build(

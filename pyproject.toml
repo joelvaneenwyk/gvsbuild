@@ -21,7 +21,7 @@ dependencies = [
     "typer>=0.12.5",
     "setuptools>=75.1.0",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.scripts]
 gvsbuild = 'gvsbuild.main:run'
@@ -34,11 +34,10 @@ ignore_missing_imports = true
 legacy_tox_ini = """
 [tox]
 isolated_build = true
-envlist = py{38,39,310,311,312}
+envlist = py{39,310,311,312}
 
 [gh-actions]
 python =
-    3.8: py38
     3.9: py39
     3.10: py310
     3.11: py311
@@ -104,15 +103,15 @@ extend-immutable-calls = ["typer.Argument", "typer.Option"]
 managed = true
 universal = true
 dev-dependencies = [
-    "pre-commit>=3.8.0",
-    "pytest>=8.3.3",
-    "tox>=4.19.0",
-    "ruff>=0.6.5",
-    "pylint>=3.2.7",
-    "mypy>=1.11.2",
-    "pyright>=1.1.380",
-    "isort>=5.13.2",
-    "tox-gh-actions>=3.2.0",
+    "pre-commit>=3",
+    "pytest>=8",
+    "tox>=4",
+    "ruff>=0.6",
+    "pylint>=3",
+    "mypy>=1",
+    "pyright>=1",
+    "isort>=5",
+    "tox-gh-actions>=3",
 ]
 
 [build-system]
