@@ -70,11 +70,17 @@ doctest_optionflags = [
     "NORMALIZE_WHITESPACE",
     "IGNORE_EXCEPTION_DETAIL",
 ]
+log_format = "%(asctime)s %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
 testpaths = ["tests"]
-# Extra options:
 addopts = [
+    "--show-capture=all",
     "--strict-markers",
-    "--tb=short",
+    "--log-level=DEBUG",
+    "--tb=auto",
+    "--showlocals",
+    "--verbose",
+    "--full-trace",
     "--doctest-modules",
     "--doctest-continue-on-failure",
 ]
