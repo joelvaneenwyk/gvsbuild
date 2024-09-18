@@ -142,7 +142,7 @@ def extract_exec(
             tar.extractall(
                 dest_dir,
                 __get_stripped_tar_members(tar) if strip_one else tar.getmembers(),
-                filter="fully_trusted"
+                filter="fully_trusted",
             )
 
     if check_mark:

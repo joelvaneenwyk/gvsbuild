@@ -245,7 +245,9 @@ class Builder:
                 for drive in possible_drives
                 for path in possible_paths
             ]
-            all_possible_paths.append(Path.home() / "scoop" / "apps" / "msys2" / "current")
+            all_possible_paths.append(
+                Path.home() / "scoop" / "apps" / "msys2" / "current"
+            )
 
             for path in all_possible_paths:
                 if Path.exists(path):
