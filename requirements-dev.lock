@@ -121,6 +121,8 @@ soupsieve==2.6
 tomlkit==0.13.2
     # via pylint
 tox==4.19.0
+    # via tox-gh-actions
+tox-gh-actions==3.2.0
 tqdm==4.66.5
     # via lastversion
 typer==0.12.5
