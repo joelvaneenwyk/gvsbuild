@@ -49,4 +49,4 @@ def test_platform(tmp_dir, typer_app, runner):
             "hello-world",
         ],
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
