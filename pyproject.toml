@@ -21,6 +21,7 @@ dependencies = [
     "typer>=0.12.5",
     "setuptools>=75.1.0",
 ]
+requires-python = ">=3.8"
 
 [project.scripts]
 gvsbuild = 'gvsbuild.main:run'
