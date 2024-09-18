@@ -22,7 +22,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    if: ${{ !contains(github.event.head_commit.message, 'skip ci') }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
@@ -40,8 +40,11 @@ jobs:
         uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
       - name: Install the latest version of rye
         uses: eifinger/setup-rye@v4
-      - name: Check Rye lock file integrity
+        with:
+          enable-cache: true
+      - name: Sync Python Dependencies
         run: |
+          rye pin ${{ env.python_version }}
           rye sync
 
   test:
@@ -70,8 +73,11 @@ jobs:
           allow-prereleases: true
       - name: Install the latest version of rye
         uses: eifinger/setup-rye@v4
-      - name: Check Rye lock file integrity
+        with:
+          enable-cache: true
+      - name: Sync Python Dependencies
         run: |
+          rye pin ${{ matrix.python-version }}
           rye sync
       - name: Test with tox
         run: rye run tox
