@@ -1,16 +1,16 @@
 # gvsbuild
 
-![CI](https://github.com/wingtk/gvsbuild/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/joelvaneenwyk/gvsbuild/actions/workflows/ci.yml/badge.svg)
 
-This python script helps you build a full [GTK](https://www.gtk.org/) library
+This Python script helps you build a full [GTK](https://www.gtk.org/) library
 stack for Windows using Visual Studio. Currently, GTK 3 and GTK 4 are supported.
 
-## Install GTK Only
+## Install GTK
 
 If you want to only run GTK on Windows and not build it yourself, you can download
-a zip file from the [latest release](https://github.com/wingtk/gvsbuild/releases/latest) and unzip it to `C:\gtk`.
+a zip file from the [latest release](https://github.com/joelvaneenwyk/gvsbuild/releases/latest) and unzip it to `C:\gtk`.
 
-It comes with GTK4, Cairo, PyGObject, Pycairo, GtkSourceView5, adwaita-icon-theme, and
+It comes with `GTK4`, `Cairo`, `PyGObject`, `Pycairo`, `GtkSourceView5`, `adwaita-icon-theme`, and
 all of their dependencies.
 
 Note however that these binaries are provided “AS IS”, WITHOUT WARRANTY OF ANY KIND.
@@ -20,6 +20,7 @@ own binaries, especially if you plan to distribute them with your application or
 production.
 
 ### Environmental Variables
+
 Finally, add GTK to your environmental variables with:
 
 ```PowerShell
@@ -49,7 +50,7 @@ The script focuses on GTK and the surrounding ecosystem (e.g. GStreamer).
 However, we are open to adding more libraries as long as the contributor takes
 on the responsibility for keeping it up to date. The supported projects are
 modules in the
-[projects](https://github.com/wingtk/gvsbuild/blob/master/gvsbuild/projects)
+[projects](https://github.com/joelvaneenwyk/gvsbuild/blob/master/gvsbuild/projects)
 directory.
 
 The script requires a working installation of [Visual Studio for Windows
@@ -71,18 +72,18 @@ First we need to install the prerequisites. There are two main options:
 1. WinGet - Available for Windows 11, and modern versions of Windows 10
 2. Chocolately - An alternative for other Windows versions
 
-### Prerequisites with WinGet
+### Prerequisites // WinGet
 
-If you would prefer to use Chocolately instead of WinGet, you can skip this
-section and follow the Prerequisites with Chocolately steps.
+> If you would prefer to use Chocolately instead of WinGet, you can skip this
+> section and follow the Prerequisites with Chocolately steps.
 
-#### WinGet
 WinGet is the Windows Package Manager and is available on Windows 11 and modern
 versions of Windows 10 (1809 / build 17763) as a part of the
 [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) package
 in the Windows Store.
 
 #### Git
+
 To setup a development environment in Windows install
 [Git](https://gitforwindows.org) by executing as an administrator:
 
@@ -91,16 +92,19 @@ winget install --id Git.Git -e --source winget
 ```
 
 #### MSYS2
+
 Both of the development environments in the next steps need MSYS2 installed.
 
 Install [MSYS2](http://www.msys2.org/):
 
 Keep PowerShell open as administrator and execute:
+
 ```PowerShell
 winget install --id MSYS2.MSYS2 -e --source winget
 ```
 
 #### Install Visual Studio 2022
+
 With your admin PowerShell terminal:
 
 ```PowerShell
@@ -111,13 +115,13 @@ Restart your computer following this installation.
 
 Note: Visual Studio versions 2013 (not for all projects), 2015, 2017, 2019, and 2022 are currently supported.
 
-#### Install the Latest Python
+#### Install Python
 
-With your admin PowerShell terminal:
+1. With your admin PowerShell terminal:
 
-```PowerShell
-winget install --id Python.Python.3.12 -e --source winget
-```
+   ```PowerShell
+   winget install --id Python.Python.3.12 -e --source winget
+   ```
 
 2. Open a PowerShell terminal as a normal user and check the python version:
 
@@ -125,11 +129,10 @@ winget install --id Python.Python.3.12 -e --source winget
    py -3.12 --version
    ```
 
-### Prerequisites with Chocolately
+### Prerequisites // Chocolately
 
-If you already installed the prerequisites with WinGet, you can skip this section.
+> If you already installed the prerequisites with WinGet, you can skip this section.
 
-#### Chocolatey
 An alternative to WinGet is using [Chocolately](https://chocolatey.org/) as a package manager
 in Windows.
 
@@ -138,11 +141,13 @@ To install it, open PowerShell as an administrator, then execute:
 ```PowerShell
 Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ```
+
 To run local scripts in follow-on steps, also execute
 `Set-ExecutionPolicy RemoteSigned`. This allows for local PowerShell scripts
 to run without signing, but still requires signing for remote scripts.
 
-#### Git
+#### Git ^
+
 To setup a development environment in Windows install
 [Git](https://gitforwindows.org) by executing as an administrator:
 
@@ -150,17 +155,20 @@ To setup a development environment in Windows install
 choco install git
 ```
 
-#### MSYS2
+#### MSYS2 ^
+
 Both of the development environments in the next steps need MSYS2 installed.
 
 Install [MSYS2](http://www.msys2.org/):
 
 Keep PowerShell open as administrator and execute:
+
 ```PowerShell
 choco install msys2
 ```
 
-#### Install Visual Studio 2022
+#### Install Visual Studio 2022 ^
+
 With your admin PowerShell terminal:
 
 ```PowerShell
@@ -169,13 +177,13 @@ choco install visualstudio2022-workload-vctools
 
 Note: Visual Studio versions 2013 (not for all projects), 2015, 2017, 2019, and 2022 are currently supported.
 
-#### Install the Latest Python
+#### Install Python ^
 
-With your admin PowerShell terminal:
+1. With your admin PowerShell terminal:
 
-```PowerShell
-choco install python312
-```
+   ```PowerShell
+   choco install python312
+   ```
 
 2. Open a PowerShell terminal as a normal user and check the python version:
 
@@ -183,7 +191,7 @@ choco install python312
    py -3.12 --version
    ```
 
-### Install gvsbuild
+### Install `gvsbuild`
 
 The recommended way to install gvsbuild is with pipx. Open a new regular user
 PowerShell terminal and execute:
@@ -200,14 +208,14 @@ Open a new regular user PowerShell terminal and execute:
 ```PowerShell
 mkdir C:\gtk-build\github
 cd C:\gtk-build\github
-git clone https://github.com/wingtk/gvsbuild.git
+git clone https://github.com/joelvaneenwyk/gvsbuild.git
 cd C:\gtk-build\github\gvsbuild
 python -m venv .venv
 .\.venv\Scripts\activate.ps1
 pip install .
 ```
 
-### Build GTK
+### Building GTK
 
 In the same PowerShell terminal, execute:
 
@@ -216,13 +224,14 @@ gvsbuild build gtk3
 ```
 
 Alternatively, if you want to build GTK 4, execute:
+
 ```PowerShell
 gvsbuild build gtk4
 ```
 
 Grab a coffee, the build will take a few minutes to complete.
 
-### Add GTK to Your Environmental Variables
+### Add GTK to Environment Variables
 
 1. From the Start menu, go to the Control Panel entry for “Edit environment variables for your account”.
 2. Double-click the `Path` row in the top list of variables. Click “New” to add a new item to the list.
@@ -231,7 +240,7 @@ Grab a coffee, the build will take a few minutes to complete.
 
 You are now ready to use GTK!
 
-### Additional Gvsbuild Usage
+### Additional `gvsbuild` Usage
 
 #### Using GTK with Visual Studio
 
@@ -239,14 +248,14 @@ You are now ready to use GTK!
 2. On the left, right click on "Source Files" and choose "Add", then "New Item..." and replace the name with `main.c`
 3. Paste in the following contents, then save the file:
 
-   ```
+   ```c++
    #include <gtk/gtk.h>
-   
+
    static void activate_cb(GtkApplication *app) {
      GtkWidget *window = gtk_application_window_new(app);
      gtk_widget_set_visible(window, true);
    }
-   
+
    int main(int argc, char **argv) {
      GtkApplication *app =
          gtk_application_new("org.app", G_APPLICATION_DEFAULT_FLAGS);
@@ -306,38 +315,38 @@ to build GTK with `gvsbuild build gtk4 adwaita-icon-theme` which will include li
 
 #### Other Options
 
- For more information about the possible commands run:
+For more information about the possible commands run:
 
- ```
- gvsbuild --help
- ```
+```bash
+gvsbuild --help
+```
 
- To get detailed help on the build command run:
+To get detailed help on the build command run:
 
- ```
- gvsbuild build --help
- ```
+```bash
+gvsbuild build --help
+```
 
- It is possible to set some parameters from a file, e.g. vs2015-release.pro, putting
- the @ character before the file name. The file contains the option, one per
- line, separated by a carriage return:
+It is possible to set some parameters from a file, e.g. `vs2015-release.pro`, putting
+the @ character before the file name. The file contains the option, one per
+line, separated by a carriage return:
 
- ```
- --vs-ver
- 14
- --win-sdk
- 8.1
- --configuration
- release
- ```
+```bash
+--vs-ver
+14
+--win-sdk
+8.1
+--configuration
+release
+```
 
- Even if the format is not the easier to write or read in this way we eliminate
- the problem of escaping spaces is file names and directories. Then you can use
- it:
+Even if the format is not the easier to write or read in this way we eliminate
+the problem of escaping spaces is file names and directories. Then you can use
+it:
 
- ```
- gvsbuild build @vs2015-release.pro gtk3-full
- ```
+```bash
+gvsbuild build @vs2015-release.pro gtk3-full
+```
 
 ## Troubleshooting
 
@@ -359,7 +368,8 @@ choco install vcredist2013
 ```
 
 Similar to other packages, you can build OpenSSL by executing:
-```
+
+```bash
 gvsbuild build openssl
 ```
 
@@ -368,12 +378,12 @@ gvsbuild build openssl
 To see and analyze the dependency between the various projects, in text or in a
 Graphviz format, use the script deps.py:
 
- ```
+```bash
 gvsbuild deps --graph --gv-file test.gv
- ```
+```
 
 Without option a simple dependency of all the projects is printed, as usual with
---help a summary of the options/commands is printed.
+`--help` a summary of the options/commands is printed.
 
 ## Gvsbuild Users
 
@@ -403,7 +413,7 @@ project they apply to.
 This tool originated from a gtk-win32 PowerShell script created by the
 [HexChat](https://hexchat.github.io/) developers for building it for Windows.
 Although this project is now archived, you can explore the original project if you
-are interested in the history at https://github.com/hexchat/gtk-win32.
+are interested in the history at <https://github.com/hexchat/gtk-win32>.
 
 Compiling the GTK stack on MSVC would not be possible without the incredible
 work by [Fan Chun-wei](https://github.com/fanc999). If you are interested in more
