@@ -235,16 +235,17 @@ class Builder:
                 drive for drive in drive_letters if os.path.exists(drive)
             ]
             possible_paths = [
-                r"\msys64",
-                r"\tools\msys64",
-                r"\msys32",
-                r"\tools\msys32",
+                "/msys64",
+                "/tools/msys64",
+                "/msys32",
+                "/tools/msys32",
             ]
             all_possible_paths = [
                 Path(drive + path)
                 for drive in possible_drives
                 for path in possible_paths
             ]
+            all_possible_paths.append(Path.home() / "scoop" / "apps" / "msys2" / "current")
 
             for path in all_possible_paths:
                 if Path.exists(path):
