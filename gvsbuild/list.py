@@ -15,7 +15,7 @@
 
 import json
 
-import typer
+import typer  # type: ignore
 
 from gvsbuild.utils.base_project import Project, ProjectType
 
@@ -49,9 +49,7 @@ def list_(
     if show_deps:
         projects = Project.compute_dependencies(projects)
     if project_type:
-        projects = [
-            p for p in projects if p.type is not None and p.type.value == project_type
-        ]
+        projects = [p for p in projects if p.type and p.type.value == project_type]
 
     if json_:
 
