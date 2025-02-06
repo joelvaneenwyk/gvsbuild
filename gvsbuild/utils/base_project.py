@@ -21,11 +21,13 @@ import pathlib
 import re
 import shutil
 from enum import Enum
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Union, TYPE_CHECKING
 
 from .simple_ui import log
 from .utils import _rmtree_error_handler
 
+if TYPE_CHECKING:
+    from .base_tool import Tool
 
 class ProjectType(str, Enum):
     IGNORE = "ignore"
@@ -140,7 +142,7 @@ class Project(Generic[P]):
 
     _projects: list[P] = []
     _names: list[str] = []
-    _dict: dict[str, P] = {}
+    _dict: dict[str, 'Tool'] = {}
     _ver_res = None
     name_len = 0
     # List of class/type to add, now not at import time but after some options are parsed
@@ -537,39 +539,39 @@ class Project(Generic[P]):
             log.error_exit(f"Could not find project {name}")
 
     @staticmethod
-    def list_projects():
-        return list(Project._projects)
+    def list_projects() -> 'list[Project[P]]':
+        return list(Project._projects)  # type: ignore[misc]
 
     @staticmethod
     def get_names():
         return list(Project._names)
 
     @staticmethod
-    def get_dict():
-        return dict(Project._dict)
+    def get_dict() -> 'dict[str, Tool]':
+        return dict(Project._dict)  # type: ignore[misc]
 
     @staticmethod
-    def get_tool_path(tool):
-        if not isinstance(tool, Project):
-            tool = Project._dict[tool]
-        if tool.type != ProjectType.TOOL:
+    def get_project_tool(tool: 'Union[Tool,str]') -> 'Tool':
+        project_tool = Project._dict[tool] if isinstance(tool, str) else tool  # type: ignore[misc]
+        return project_tool
+
+    @staticmethod
+    def get_tool_path(tool: 'Union[Tool,str]') -> str | None:
+        project_tool = Project.get_project_tool(tool)
+        if project_tool.type != ProjectType.TOOL:
             return None
-        t = tool.get_path()
+        t = project_tool.get_path()
         return t[0] or t[1] if isinstance(t, tuple) else t
 
     @staticmethod
-    def get_tool_executable(tool):
-        if not isinstance(tool, Project):
-            tool = Project._dict[tool]
-
-        return tool.get_executable() if tool.type == ProjectType.TOOL else None
+    def get_tool_executable(tool: 'Union[Tool,str]') -> str | None:
+        project_tool = Project.get_project_tool(tool)
+        return project_tool.get_executable() if project_tool.type == ProjectType.TOOL else None
 
     @staticmethod
-    def get_tool_base_dir(tool):
-        if not isinstance(tool, Project):
-            tool = Project._dict[tool]
-
-        return tool.get_base_dir() if tool.type == ProjectType.TOOL else None
+    def get_tool_base_dir(tool: 'Union[Tool,str]') -> str | None:
+        project_tool = Project.get_project_tool(tool)
+        return project_tool.get_base_dir() if project_tool.type == ProjectType.TOOL else None
 
     def mark_file_calc(self):
         if not self.mark_file:
