@@ -240,6 +240,9 @@ version = "2025.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "build" },
+    { name = "lastversion" },
+    { name = "packaging" },
+    { name = "pip" },
     { name = "setuptools", marker = "python_full_version >= '3.12'" },
     { name = "typer" },
 ]
@@ -260,8 +263,11 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "build", specifier = ">=0.9,<1.3" },
+    { name = "lastversion", specifier = ">=3.5.6" },
     { name = "lastversion", marker = "extra == 'outdated'", specifier = ">=2.4.2,<4.0.0" },
+    { name = "packaging", specifier = ">=24.1" },
     { name = "packaging", marker = "extra == 'outdated'", specifier = ">=21.3,<25.0" },
+    { name = "pip", specifier = ">=24.2" },
     { name = "setuptools", marker = "python_full_version >= '3.12'", specifier = ">=69.2,<76.0" },
     { name = "typer", specifier = ">=0.6.1,<0.16.0" },
 ]
@@ -314,7 +320,7 @@ wheels = [
 
 [[package]]
 name = "lastversion"
-version = "3.5.5"
+version = "3.5.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "appdirs" },
@@ -329,9 +335,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fb/17/214e28e5239f96ae71f247f7d702129e392e2f775543accac3b7c7108e3e/lastversion-3.5.5.tar.gz", hash = "sha256:236120a3b7cba6dfa7deaf420b509438193fba503bd97b40b556acad36935bbc", size = 82772 }
+sdist = { url = "https://files.pythonhosted.org/packages/7e/07/3ce9210d1c62b5f2d6314e2abb17ccd4a93b474d2a878538cb14fccc8f11/lastversion-3.5.7.tar.gz", hash = "sha256:1f77181552daa0f35cc6f8054946cb8031b6abdbf189c1ef3f9a9e10bd07ada9", size = 82823 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/36/c6/68a020224ee26ab6f8787483ebf2dde1028ce4ff3edff89f23d3759fac5f/lastversion-3.5.5-py3-none-any.whl", hash = "sha256:9b3c1901e069e6c6365c34b8c9120e2cd3e6ed06f36954c4e4e6046cdcf1548e", size = 67736 },
+    { url = "https://files.pythonhosted.org/packages/3b/76/f2bcb61fcd980d991dd75ec8ba1783b665b4728024e20607e67ed12019e0/lastversion-3.5.7-py3-none-any.whl", hash = "sha256:c60c5fba60962fc5c9536ae5b5701a20c3bc5115575d60553eb2040b0060956c", size = 67827 },
 ]
 
 [[package]]
@@ -423,6 +429,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/51/65/50db4dda066951078f0a96cf12f4b9ada6e4b811516bf0262c0f4f7064d4/packaging-24.1.tar.gz", hash = "sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002", size = 148788 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/08/aa/cc0199a5f0ad350994d660967a8efb233fe0416e4639146c089643407ce6/packaging-24.1-py3-none-any.whl", hash = "sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124", size = 53985 },
+]
+
+[[package]]
+name = "pip"
+version = "25.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/3e/68beeeeb306ea20ffd30b3ed993f531d16cd884ec4f60c9b1e238f69f2af/pip-25.0.tar.gz", hash = "sha256:8e0a97f7b4c47ae4a494560da84775e9e2f671d415d8d828e052efefb206b30b", size = 1950328 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/85/8a/1ddf40be20103bcc605db840e9ade09c8e8c9f920a03e9cfe88eae97a058/pip-25.0-py3-none-any.whl", hash = "sha256:b6eb97a803356a52b2dd4bb73ba9e65b2ba16caa6bcb25a7497350a4e5859b65", size = 1841506 },
 ]
 
 [[package]]
