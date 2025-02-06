@@ -21,7 +21,7 @@ import pathlib
 import re
 import shutil
 from enum import Enum
-from typing import TYPE_CHECKING, Type, Generic, TypeVar, Union, cast, Any
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from gvsbuild.utils.base_tool import Tool
 
@@ -143,18 +143,18 @@ class Project(Generic[P]):
         # register version params for use from derived classes
         self.version_params = version_params
 
-    _projects: 'list[Project[Any]]' = []
+    _projects: "list[Project[Any]]" = []
     _names: list[str] = []
-    _dict: 'dict[str, Project[Any]]' = {}
+    _dict: "dict[str, Project[Any]]" = {}
     _ver_res = None
     name_len = 0
     # List of class/type to add, now not at import time but after some options are parsed
-    _reg_prj_list: 'list[tuple[type[Project[Any]], ProjectType]]' = []
+    _reg_prj_list: "list[tuple[type[Project[Any]], ProjectType]]" = []
     # build option
     opts = Options()
 
     @staticmethod
-    def compute_dependencies(projects: 'list[Project]') -> 'list[Project]':
+    def compute_dependencies(projects: "list[Project]") -> "list[Project]":
         global_deps = {p.name for p in projects}
 
         def _add_project_dependencies(project: Project) -> None:
@@ -542,7 +542,7 @@ class Project(Generic[P]):
         self.to_add = False
 
     @staticmethod
-    def get_project(name: str) -> 'Project[Any]':
+    def get_project(name: str) -> "Project[Any]":
         try:
             return Project._dict[name]  # type: ignore[misc]
         except KeyError:
@@ -572,20 +572,12 @@ class Project(Generic[P]):
     @staticmethod
     def get_tool_executable(tool: str) -> str | None:
         project_tool = Project.get_project_tool(tool)
-        return (
-            project_tool.get_executable()
-            if project_tool is not None
-            else None
-        )
+        return project_tool.get_executable() if project_tool is not None else None
 
     @staticmethod
     def get_tool_base_dir(tool: str) -> str | None:
         project_tool = Project.get_project_tool(tool)
-        return (
-            project_tool.get_base_dir()
-            if project_tool is not None
-            else None
-        )
+        return project_tool.get_base_dir() if project_tool is not None else None
 
     def mark_file_calc(self):
         if not self.mark_file:

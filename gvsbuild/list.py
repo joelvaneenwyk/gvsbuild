@@ -50,12 +50,11 @@ def list_(
         projects = Project.compute_dependencies(projects)
     if project_type:
         projects = [
-            p
-            for p in projects
-            if p.type is not None and p.type.value == project_type
+            p for p in projects if p.type is not None and p.type.value == project_type
         ]
 
     if json_:
+
         def _get_project_data(project):
             data = {"dependencies": project.dependencies, "type": project.type.value}
             if project.version:
