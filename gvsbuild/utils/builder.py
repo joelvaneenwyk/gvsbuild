@@ -333,7 +333,7 @@ class Builder:
             return
 
         completed_process = subprocess.run(
-            [f"{vswhere}", "-all", "-products", "*", "-format", "json", "-utf8"],
+            [f"{vswhere}", "-prerelease", "-all", "-products", "*", "-format", "json", "-utf8"],
             capture_output=True,
             encoding="utf-8",
         )
@@ -389,7 +389,7 @@ class Builder:
                 f"\n  {vcvars_bat} could not be found.\n  Please check you have Visual Studio installed at {vs_path}\n  and that it supports the target platform {opts.platform}."
             )
         return subprocess.check_output(
-            f'cmd.exe /c ""{vcvars_bat}"{add_opts}>NUL && set"', text=True
+            f'cmd.exe /d /c ""{vcvars_bat}"{add_opts}>NUL && set"', text=True
         )
 
     def __find_vs_path_with_vs_version(self, paths):
