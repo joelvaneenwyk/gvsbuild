@@ -23,8 +23,6 @@ import shutil
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
-from gvsbuild.utils.base_tool import Tool
-
 from .simple_ui import log
 from .utils import _rmtree_error_handler
 
@@ -89,7 +87,7 @@ P = TypeVar("P", bound=str)
 
 
 class Project(Generic[P]):
-    def __init__(self, name: P | None = None, **kwargs):
+    def __init__(self, name: 'P | None' = None, **kwargs):
         object.__init__(self)
         self.patch_dir = None
         self.build_dir = None
@@ -193,9 +191,11 @@ class Project(Generic[P]):
         self.dependencies.append(dep)
 
     def exec_cmd(self, cmd, working_dir=None, add_path=None):
+        assert self.builder is not None, "builder should already be initialized"
         self.builder.exec_cmd(cmd, working_dir=working_dir, add_path=add_path)
 
     def exec_vs(self, cmd, add_path=None):
+        assert self.builder is not None, "builder should already be initialized"
         self.builder.exec_vs(
             cmd, working_dir=self._get_working_dir(), add_path=add_path
         )
@@ -310,6 +310,7 @@ class Project(Generic[P]):
             self._msbuild_copy_dir(dst, src, search, replace)
             return dst_part
 
+        assert self.builder is not None, "builder should already be initialized"
         part = f"vs{self.builder.opts.vs_ver}"
         if not _msbuild_ok(self, part):
             part = self.builder.vs_ver_year
@@ -410,11 +411,13 @@ class Project(Generic[P]):
         return part
 
     def install(self, *args):
+        assert self.builder is not None, "builder should already be initialized"
         self.builder.install(self._get_working_dir(), self.pkg_dir, *args)
 
     def install_dir(self, src, dest=None):
         if not dest:
             dest = os.path.basename(src)
+        assert self.builder is not None, "builder should already be initialized"
         self.builder.install_dir(self._get_working_dir(), self.pkg_dir, src, dest)
 
     def install_pc_files(self, base_dir="pc-files"):
@@ -557,12 +560,12 @@ class Project(Generic[P]):
         return list(Project._names)
 
     @staticmethod
-    def get_project_tool(tool: str) -> Tool | None:
+    def get_project_tool(tool: str) -> 'Tool | None':
         project = Project.get_project(tool)
-        return project if isinstance(project, Tool) else None
+        return project if project.type == ProjectType.TOOL else None  # type: ignore
 
     @staticmethod
-    def get_tool_path(tool: str) -> str | None:
+    def get_tool_path(tool: str) -> 'str | None':
         project_tool = Project.get_project_tool(tool)
         if project_tool is None:
             return None
@@ -570,17 +573,18 @@ class Project(Generic[P]):
         return t[0] or t[1] if isinstance(t, tuple) else t
 
     @staticmethod
-    def get_tool_executable(tool: str) -> str | None:
+    def get_tool_executable(tool: str) -> 'str | None':
         project_tool = Project.get_project_tool(tool)
         return project_tool.get_executable() if project_tool is not None else None
 
     @staticmethod
-    def get_tool_base_dir(tool: str) -> str | None:
+    def get_tool_base_dir(tool: str) -> 'str | None':
         project_tool = Project.get_project_tool(tool)
         return project_tool.get_base_dir() if project_tool is not None else None
 
     def mark_file_calc(self):
         if not self.mark_file:
+            assert self.build_dir is not None, "build_dir should already be initialized"
             self.mark_file = os.path.join(self.build_dir, ".wingtk-built")
 
     def mark_file_remove(self):
