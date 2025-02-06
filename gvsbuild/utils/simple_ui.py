@@ -20,6 +20,7 @@ import datetime
 import os
 import sys
 from contextlib import contextmanager, suppress
+from typing import NoReturn
 
 from rich import print
 
@@ -273,7 +274,7 @@ class Log:
     def debug_on(self):
         return self._debug
 
-    def error_exit(self, msg):
+    def error_exit(self, msg) -> NoReturn:
         self._output(f"Error:{msg}")
         print("Error:", msg, file=sys.stderr)
         sys.exit(1)

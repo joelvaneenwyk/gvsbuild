@@ -21,7 +21,9 @@ import pathlib
 import re
 import shutil
 from enum import Enum
-from typing import TYPE_CHECKING, Generic, TypeVar, Union
+from typing import TYPE_CHECKING, Type, Generic, TypeVar, Union, cast, Any
+
+from gvsbuild.utils.base_tool import Tool
 
 from .simple_ui import log
 from .utils import _rmtree_error_handler
@@ -83,20 +85,20 @@ class Options:
         self.projects = None
 
 
-P = TypeVar("P")
+P = TypeVar("P", bound=str)
 
 
 class Project(Generic[P]):
-    def __init__(self, name, **kwargs):
+    def __init__(self, name: P | None = None, **kwargs):
         object.__init__(self)
         self.patch_dir = None
         self.build_dir = None
         self.pkg_dir = None
         self.builder = None
-        self.name = name
+        self.name = name or str(self.__class__)
         self.prj_dir = name
-        self.dependencies = []
-        self.patches = []
+        self.dependencies: list[str] = []
+        self.patches: list[str] = []
         self.archive_url = None
         self.archive_filename = None
         self.tarbomb = False
@@ -109,7 +111,7 @@ class Project(Generic[P]):
         self.mark_file = None
         self.clean = False
         self.to_add = True
-        self.extra_env = {}
+        self.extra_env: dict[str, str] = {}
         self.tag = None
         self.repo_url = None
         self.extra_opts = None
@@ -141,21 +143,21 @@ class Project(Generic[P]):
         # register version params for use from derived classes
         self.version_params = version_params
 
-    _projects: list[P] = []
+    _projects: 'list[Project[Any]]' = []
     _names: list[str] = []
-    _dict: dict[str, "Tool"] = {}
+    _dict: 'dict[str, Project[Any]]' = {}
     _ver_res = None
     name_len = 0
     # List of class/type to add, now not at import time but after some options are parsed
-    _reg_prj_list: list[tuple[P, ProjectType]] = []
+    _reg_prj_list: 'list[tuple[type[Project[Any]], ProjectType]]' = []
     # build option
     opts = Options()
 
     @staticmethod
-    def compute_dependencies(projects):
+    def compute_dependencies(projects: 'list[Project]') -> 'list[Project]':
         global_deps = {p.name for p in projects}
 
-        def _add_project_dependencies(project):
+        def _add_project_dependencies(project: Project) -> None:
             for dep in project.dependencies:
                 if dep not in global_deps:
                     global_deps.add(dep)
@@ -220,12 +222,15 @@ class Project(Generic[P]):
         definition
         """
 
-        ver = self.builder.opts.vs_ver
+        if self.builder is not None and self.builder.opts is not None:
+            ver = self.builder.opts.vs_ver
+        else:
+            ver = None
         if ver == "15":
             dst_platform = "141"
         elif ver == "16":
             dst_platform = "142"
-        elif ver == "17":
+        elif ver == "17" or ver is None:
             dst_platform = "143"
         else:
             dst_platform = f"{ver}0"
@@ -437,9 +442,11 @@ class Project(Generic[P]):
     def patch(self):
         for p in self.patches:
             name = os.path.basename(p)
+            assert self.build_dir is not None, "build_dir should already be initialized"
             stamp = os.path.join(self.build_dir, f"{name}.patch-applied")
             if not os.path.exists(stamp):
                 log.log(f"Applying patch {p}")
+                assert self.builder is not None, "builder should already be initialized"
                 self.builder.exec_msys(
                     ["patch", "-p1", "-i", p], working_dir=self._get_working_dir()
                 )
@@ -449,6 +456,7 @@ class Project(Generic[P]):
                 log.debug(f"patch {p} already applied, skipping")
 
     def _get_working_dir(self):
+        assert self.build_dir is not None, "build_dir should already be initialized"
         if self.__working_dir:
             return os.path.join(self.build_dir, self.__working_dir)
         else:
@@ -461,6 +469,7 @@ class Project(Generic[P]):
         self.__working_dir = None
 
     def prepare_build_dir(self):
+        assert self.build_dir is not None, "build_dir should already be initialized"
         if self.clean and os.path.exists(self.build_dir):
             shutil.rmtree(self.build_dir, onerror=_rmtree_error_handler)
 
@@ -501,28 +510,28 @@ class Project(Generic[P]):
                     base_env[key] = val
 
     @staticmethod
-    def add(proj, type=ProjectType.IGNORE):
-        Project._projects.append(proj)
+    def add(proj: "Project[Any]", type=ProjectType.IGNORE):
+        Project._projects.append(proj)  # type: ignore[misc]
         Project._names.append(proj.name)
         Project._dict[proj.name] = proj
         if proj.type is None:
             proj.type = type
 
     @staticmethod
-    def register(cls, ty):
+    def register(clss: "type[Project[Any]]", ty: ProjectType) -> None:
         """Register the class to be added after some initialization."""
-        Project._reg_prj_list.append(
+        Project._reg_prj_list.append(  # type: ignore[misc]
             (
-                cls,
+                clss,
                 ty,
             )
         )
 
     @staticmethod
-    def add_all():
+    def add_all() -> None:
         """Add all the registered class."""
-        for cls, ty in Project._reg_prj_list:
-            c_inst = cls()
+        for clss, ty in Project._reg_prj_list:  # type: ignore[misc]
+            c_inst = clss()
             if c_inst.to_add:
                 Project.add(c_inst, type=ty)
             else:
@@ -533,14 +542,14 @@ class Project(Generic[P]):
         self.to_add = False
 
     @staticmethod
-    def get_project(name):
+    def get_project(name: str) -> 'Project[Any]':
         try:
-            return Project._dict[name]
+            return Project._dict[name]  # type: ignore[misc]
         except KeyError:
             log.error_exit(f"Could not find project {name}")
 
     @staticmethod
-    def list_projects() -> "list[Project[P]]":
+    def list_projects() -> "list[Project[Any]]":
         return list(Project._projects)  # type: ignore[misc]
 
     @staticmethod
@@ -548,37 +557,33 @@ class Project(Generic[P]):
         return list(Project._names)
 
     @staticmethod
-    def get_dict() -> "dict[str, Tool]":
-        return dict(Project._dict)  # type: ignore[misc]
+    def get_project_tool(tool: str) -> Tool | None:
+        project = Project.get_project(tool)
+        return project if isinstance(project, Tool) else None
 
     @staticmethod
-    def get_project_tool(tool: "Union[Tool,str]") -> "Tool":
-        project_tool = Project._dict[tool] if isinstance(tool, str) else tool  # type: ignore[misc]
-        return project_tool
-
-    @staticmethod
-    def get_tool_path(tool: "Union[Tool,str]") -> str | None:
+    def get_tool_path(tool: str) -> str | None:
         project_tool = Project.get_project_tool(tool)
-        if project_tool.type != ProjectType.TOOL:
+        if project_tool is None:
             return None
         t = project_tool.get_path()
         return t[0] or t[1] if isinstance(t, tuple) else t
 
     @staticmethod
-    def get_tool_executable(tool: "Union[Tool,str]") -> str | None:
+    def get_tool_executable(tool: str) -> str | None:
         project_tool = Project.get_project_tool(tool)
         return (
             project_tool.get_executable()
-            if project_tool.type == ProjectType.TOOL
+            if project_tool is not None
             else None
         )
 
     @staticmethod
-    def get_tool_base_dir(tool: "Union[Tool,str]") -> str | None:
+    def get_tool_base_dir(tool: str) -> str | None:
         project_tool = Project.get_project_tool(tool)
         return (
             project_tool.get_base_dir()
-            if project_tool.type == ProjectType.TOOL
+            if project_tool is not None
             else None
         )
 
@@ -626,6 +631,6 @@ def project_add(cls):
 def get_project_by_type(prj_type):
     return [
         (project.name, project.version)
-        for project in Project._projects
+        for project in Project.list_projects()
         if project.type == prj_type
     ]
