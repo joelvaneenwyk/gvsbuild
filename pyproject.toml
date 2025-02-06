@@ -59,6 +59,9 @@ dev = [
      "ruff>=0.9.5",
      "tox-gh-actions>=3",
      "tox>=4",
+     "types-pygments>=2.19.0.20250107",
+     "types-colorama>=0.4.15.20240311",
+     "types-pexpect>=4.9.0.20241208",
 ]
 
 [tool.uv]
