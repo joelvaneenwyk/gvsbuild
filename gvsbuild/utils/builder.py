@@ -394,7 +394,7 @@ class Builder:
 
         vs_paths = []
         for path in paths:
-            if self.vs_ver_year[-4:] in path or vs_ver_re.search(path):
+            if (self.vs_ver_year and self.vs_ver_year[-4:] in path) or vs_ver_re.search(path):
                 vs_paths.append(path)
 
         if len(vs_paths) == 0:
