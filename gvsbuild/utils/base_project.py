@@ -27,6 +27,7 @@ from .simple_ui import log
 from .utils import _rmtree_error_handler
 
 if TYPE_CHECKING:
+    from ..build import Builder
     from .base_tool import Tool
 
 
@@ -38,81 +39,81 @@ class ProjectType(str, Enum):
 
 
 class Options:
-    def __init__(self):
-        self.enable_gi = False
-        self.enable_fips = False
-        self.ffmpeg_enable_gpl = False
-        self.verbose = False
-        self.debug = False
+    def __init__(self) -> None:
+        self.enable_gi: bool = False
+        self.enable_fips: bool = False
+        self.ffmpeg_enable_gpl: bool = False
+        self.verbose: bool = False
+        self.debug: bool = False
         self.platform = "x64"
         self.configuration = "release"
-        self.release_configuration_is_actually_debug_optimized = False
-        self.build_dir = None
-        self.archives_download_dir = None
-        self.export_dir = None
-        self.patches_root_dir = None
-        self.tools_root_dir = None
-        self.vs_ver = None
-        self.vs_install_path = None
-        self.win_sdk_ver = None
-        self.net_target_framework = None
-        self.net_target_framework_version = None
-        self.msys_dir = None
-        self.clean = False
-        self.msbuild_opts = None
-        self.use_env = False
-        self.deps = False
-        self.check_hash = False
-        self.skip = False
-        self.make_zip = False
-        self.zip_continue = False
-        self.from_scratch = False
-        self.keep_tools = False
-        self.fast_build = False
-        self.keep_going = False
-        self.clean_built = False
-        self.py_wheel = False
-        self.log_size = None
-        self.log_single = False
-        self.cargo_opts = None
-        self.ninja_opts = None
-        self.extra_opts = None
-        self.capture_out = False
-        self.print_out = False
-        self.git_expand_dir = None
-        self.projects = None
+        self.release_configuration_is_actually_debug_optimized: bool = False
+        self.build_dir: "str | None" = None
+        self.archives_download_dir: "str | None" = None
+        self.export_dir: "str | None" = None
+        self.patches_root_dir: "str | None" = None
+        self.tools_root_dir: "str | None" = None
+        self.vs_ver: "str | None" = None
+        self.vs_install_path: "str | pathlib.Path | None" = None
+        self.win_sdk_ver: "str | None" = None
+        self.net_target_framework: "str | None" = None
+        self.net_target_framework_version: "str | None" = None
+        self.msys_dir: "str | pathlib.Path | None" = None
+        self.clean: bool = False
+        self.msbuild_opts: "str | None" = None
+        self.use_env: bool = False
+        self.deps: bool = False
+        self.check_hash: bool = False
+        self.skip: list[str] = []
+        self.make_zip: bool = False
+        self.zip_continue: bool = False
+        self.from_scratch: bool = False
+        self.keep_tools: bool = False
+        self.fast_build: bool = False
+        self.keep_going: bool = False
+        self.clean_built: bool = False
+        self.py_wheel: bool = False
+        self.log_size: "int | None" = None
+        self.log_single: bool = False
+        self.cargo_opts: "str | None" = None
+        self.ninja_opts: "str | None" = None
+        self.extra_opts: dict[str, list[str]] = {}
+        self.capture_out: bool = False
+        self.print_out: bool = False
+        self.git_expand_dir: "str | None" = None
+        self.projects: list[str] = []
 
 
 P = TypeVar("P", bound=str)
 
 
 class Project(Generic[P]):
-    def __init__(self, name: 'P | None' = None, **kwargs):
+    def __init__(self, name: "P | None" = None, **kwargs):
         object.__init__(self)
-        self.patch_dir = None
-        self.build_dir = None
-        self.pkg_dir = None
-        self.builder = None
-        self.name = name or str(self.__class__)
-        self.prj_dir = name
+        self.patch_dir: "str | pathlib.Path | None" = None
+        self.build_dir: "str | None" = None
+        self.pkg_dir: "str | None" = None
+        self.builder: "Builder | None" = None
+        self.name: str = str(name or str(self.__class__))
+        self.prj_dir = str(name)
         self.dependencies: list[str] = []
         self.patches: list[str] = []
-        self.archive_url = None
-        self.archive_filename = None
-        self.tarbomb = False
-        self.type = None
-        self.version = None
-        self.repository = None
-        self.lastversion_major = None
-        self.lastversion_even = None
-        self.internal = False
-        self.mark_file = None
-        self.clean = False
-        self.to_add = True
+        self.archive_url: "str | None" = None
+        self.archive_filename: "str | None" = None
+        self.tarbomb: bool = False
+        self.type: "ProjectType | None" = None
+        self.version: "str | None" = None
+        self.repository: "str | None" = None
+        self.lastversion_major: "int | None" = None
+        self.lastversion_even: "int | None" = None
+        self.internal: bool = False
+        self.mark_file: "str | None" = None
+        self.clean: bool = False
+        self.to_add: bool = True
         self.extra_env: dict[str, str] = {}
-        self.tag = None
-        self.repo_url = None
-        self.extra_opts = None
+        self.tag: "str | None" = None
+        self.repo_url: "str | None" = None
+        self.extra_opts: "str | None" = None
 
         for k in kwargs:
             setattr(self, k, kwargs[k])
@@ -152,7 +153,7 @@ class Project(Generic[P]):
     opts = Options()
 
     @staticmethod
-    def compute_dependencies(projects: "list[Project]") -> "list[Project]":
+    def compute_dependencies(projects: "list[Project[Any]]") -> "list[Project[Any]]":
         global_deps = {p.name for p in projects}
 
         def _add_project_dependencies(project: Project) -> None:
@@ -422,7 +423,10 @@ class Project(Generic[P]):
 
     def install_pc_files(self, base_dir="pc-files"):
         """Install, setting dir & version, the .pc files."""
+        assert self.pkg_dir is not None, "pkg_dir should already be initialized"
         pkgconfig_dir = os.path.join(self.pkg_dir, "lib", "pkgconfig")
+
+        assert self.builder is not None, "builder should already be initialized"
         self.builder.make_dir(pkgconfig_dir)
 
         src_dir = os.path.join(self._get_working_dir(), base_dir)
@@ -434,7 +438,7 @@ class Project(Generic[P]):
                 content = pathlib.Path(f.path).read_text()
                 _t = content.replace("@prefix@", gtk_dir)
                 content = _t
-                _t = content.replace("@version@", self.version)
+                _t = content.replace("@version@", self.version or "0.0.0")
                 content = _t
 
                 with open(
@@ -476,16 +480,17 @@ class Project(Generic[P]):
         if self.clean and os.path.exists(self.build_dir):
             shutil.rmtree(self.build_dir, onerror=_rmtree_error_handler)
 
+        assert self.builder is not None, "builder should already be initialized"
         if os.path.exists(self.build_dir):
             log.debug(f"directory {self.build_dir} already exists")
             if self.update_build_dir():
                 self.mark_file_remove()
-                if os.path.exists(self.patch_dir):
+                if os.path.exists(self.patch_dir or ""):
                     log.log(f"Copying files from {self.patch_dir} to {self.build_dir}")
                     self.builder.copy_all(self.patch_dir, self.build_dir)
         else:
             self.unpack()
-            if os.path.exists(self.patch_dir):
+            if os.path.exists(self.patch_dir or ""):
                 log.log(f"Copying files from {self.patch_dir} to {self.build_dir}")
                 self.builder.copy_all(self.patch_dir, self.build_dir)
 
@@ -556,16 +561,16 @@ class Project(Generic[P]):
         return list(Project._projects)  # type: ignore[misc]
 
     @staticmethod
-    def get_names():
+    def get_names() -> list[str]:
         return list(Project._names)
 
     @staticmethod
-    def get_project_tool(tool: str) -> 'Tool | None':
+    def get_project_tool(tool: str) -> "Tool | None":
         project = Project.get_project(tool)
         return project if project.type == ProjectType.TOOL else None  # type: ignore
 
     @staticmethod
-    def get_tool_path(tool: str) -> 'str | None':
+    def get_tool_path(tool: str) -> "str | None":
         project_tool = Project.get_project_tool(tool)
         if project_tool is None:
             return None
@@ -573,12 +578,12 @@ class Project(Generic[P]):
         return t[0] or t[1] if isinstance(t, tuple) else t
 
     @staticmethod
-    def get_tool_executable(tool: str) -> 'str | None':
+    def get_tool_executable(tool: str) -> "str | None":
         project_tool = Project.get_project_tool(tool)
         return project_tool.get_executable() if project_tool is not None else None
 
     @staticmethod
-    def get_tool_base_dir(tool: str) -> 'str | None':
+    def get_tool_base_dir(tool: str) -> "str | None":
         project_tool = Project.get_project_tool(tool)
         return project_tool.get_base_dir() if project_tool is not None else None
 
@@ -589,11 +594,13 @@ class Project(Generic[P]):
 
     def mark_file_remove(self):
         self.mark_file_calc()
+        assert self.mark_file is not None, "mark_file should already be initialized"
         if os.path.isfile(self.mark_file):
             os.remove(self.mark_file)
 
     def mark_file_write(self):
         self.mark_file_calc()
+        assert self.mark_file is not None, "mark_file should already be initialized"
         try:
             with open(self.mark_file, "w", encoding="utf-8") as fo:
                 now = datetime.datetime.now().replace(microsecond=0)
@@ -604,6 +611,7 @@ class Project(Generic[P]):
     def mark_file_exist(self):
         rt = None
         self.mark_file_calc()
+        assert self.mark_file is not None, "mark_file should already be initialized"
         if os.path.isfile(self.mark_file):
             try:
                 with open(self.mark_file, encoding="utf-8") as fi:
