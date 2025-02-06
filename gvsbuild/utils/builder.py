@@ -537,7 +537,7 @@ class Builder:
             return
 
         # List of all the project we can mark for build because of a dependent
-        self.prj_to_mark = [x for x in Project._projects if x.is_project()]
+        self.prj_to_mark = [x for x in Project.list_projects() if x.is_project()]
 
         self.prj_done = []
         self.prj_skipped = []
