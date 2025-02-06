@@ -16,7 +16,7 @@
 from enum import Enum
 from pathlib import Path
 
-import typer
+import typer  # type: ignore
 
 from gvsbuild.utils.base_project import Options, Project, ProjectType
 from gvsbuild.utils.builder import Builder
@@ -24,16 +24,16 @@ from gvsbuild.utils.simple_ui import log
 from gvsbuild.utils.utils import ordered_set
 
 
-def __get_projects_to_build(opts):
+def __get_projects_to_build(opts: Options) -> ordered_set:
     to_build = ordered_set()
-    for name in opts.projects:
+    for name in opts.projects or []:
         if name == "all":
             for proj in Project.list_projects():
                 if proj.type == ProjectType.PROJECT:
                     to_build.add(proj)
         p = Project.get_project(name)
-        if opts.deps:
-            for dep in p.all_dependencies:
+        if opts.deps and hasattr(p, "all_dependencies"):
+            for dep in p.all_dependencies:  # type: ignore
                 to_build.add(dep)
         to_build.add(p)
         if opts.clean_built:
@@ -42,19 +42,18 @@ def __get_projects_to_build(opts):
             to_build.add(Project.get_project("openssl-fips"))
 
     # See if we need to drop some project
-    if opts.skip:
-        for s in opts.skip:
-            if s not in Project.get_names():
-                log.error_exit(
-                    s
-                    + " is not a valid project name, available projects are:\n\t"
-                    + "\n\t".join(Project.get_names())
-                )
+    for s in opts.skip or []:
+        if s not in Project.get_names():
+            log.error_exit(
+                s
+                + " is not a valid project name, available projects are:\n\t"
+                + "\n\t".join(Project.get_names())
+            )
 
-            p = Project.get_project(s)
-            if p in to_build:
-                log.debug(f"Dropped project {s}")
-                to_build.remove(p)
+        p = Project.get_project(s)
+        if p in to_build:
+            log.debug(f"Dropped project {s}")
+            to_build.remove(p)
     return to_build
 
 
