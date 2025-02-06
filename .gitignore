@@ -41,3 +41,7 @@ __pycache__/
 .git/
 
 dist/
+
+# On non-Windows platforms, we may accidentally create "C:\gtk-build" in
+# the current directory.
+/C*/
