@@ -32,16 +32,17 @@ class Tool(Project):
             self.dir_part = (self.dir_part).format(**self.version_params)
 
     def load_defaults(self):
+        assert self.opts.tools_root_dir, "tools_root_dir must be set"
         if self.dir_part:
             self.build_dir = os.path.join(self.opts.tools_root_dir, self.dir_part)
         else:
             self.build_dir = os.path.join(self.opts.tools_root_dir, self.name)
         if hasattr(self, "exe_name"):
-            self.full_exe = os.path.join(self.build_dir, self.exe_name)
+            self.full_exe = os.path.join(self.build_dir, self.exe_name or self.name)  # type: ignore
 
     def tool_mark(self):
         # Create the directory to let the --fast-build option work as expected
-        if not os.path.exists(self.build_dir):
+        if self.build_dir and not os.path.exists(self.build_dir):
             os.makedirs(self.build_dir)
             self.mark_deps = True
 
