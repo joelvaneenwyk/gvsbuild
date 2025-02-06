@@ -329,7 +329,16 @@ class Builder:
             return
 
         completed_process = subprocess.run(
-            [f"{vswhere}", "-prerelease", "-all", "-products", "*", "-format", "json", "-utf8"],
+            [
+                f"{vswhere}",
+                "-prerelease",
+                "-all",
+                "-products",
+                "*",
+                "-format",
+                "json",
+                "-utf8",
+            ],
             capture_output=True,
             encoding="utf-8",
         )
@@ -394,7 +403,9 @@ class Builder:
 
         vs_paths = []
         for path in paths:
-            if (self.vs_ver_year and self.vs_ver_year[-4:] in path) or vs_ver_re.search(path):
+            if (self.vs_ver_year and self.vs_ver_year[-4:] in path) or vs_ver_re.search(
+                path
+            ):
                 vs_paths.append(path)
 
         if len(vs_paths) == 0:
