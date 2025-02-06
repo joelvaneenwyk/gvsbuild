@@ -131,10 +131,7 @@ class Builder:
     def _create_msbuild_opts(self, python):
         rt = [f"/nologo /p:Platform={self.opts.platform}"]
         if python:
-            rt.append(
-                '/p:PythonPath="%(python_dir)s" /p:PythonDir="%(python_dir)s"'
-                % {"python_dir": python}
-            )
+            rt.append(f'/p:PythonPath="{python}" /p:PythonDir="{python}"')
 
         if log.verbose_on():
             rt.append("/v:normal")
@@ -272,8 +269,7 @@ class Builder:
             # oops
             cmd = "pacman -S " + " ".join(missing)
             log.error_exit(
-                "Missing package(s) from msys2 installation, try with\n    '%s'\nin a msys2 shell."
-                % (cmd,)
+                f"Missing package(s) from msys2 installation, try with\n    '{cmd}'\nin a msys2 shell."
             )
 
         self.patch = msys_path / "usr" / "bin" / "patch.exe"
@@ -324,7 +320,7 @@ class Builder:
                     del self.vs_env[key]
 
     def __dump_vs_loc(self):
-        vswhere = r"%s\Microsoft Visual Studio\Installer\vswhere.exe" % (
+        vswhere = r"{}\Microsoft Visual Studio\Installer\vswhere.exe".format(
             os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
         )
         log.log("Trying to find Visual Studio installations ...")
@@ -392,14 +388,21 @@ class Builder:
             f'cmd.exe /d /c ""{vcvars_bat}"{add_opts}>NUL && set"', text=True
         )
 
-    def __find_vs_path_with_vs_version(self, paths):
+    def __find_vs_paths_with_vs_version(self, paths):
         # Don't match version with data (e.g. vs version 17 with vs 2017)
         vs_ver_re = re.compile("[^0-9]" + self.opts.vs_ver)
 
+        vs_paths = []
         for path in paths:
             if self.vs_ver_year[-4:] in path or vs_ver_re.search(path):
-                return path
-        log.debug(f"Can't find vs-ver {self.opts.vs_ver} in found VS installations.")
+                vs_paths.append(path)
+
+        if len(vs_paths) == 0:
+            log.debug(
+                f"Can't find vs-ver {self.opts.vs_ver} in found VS installations."
+            )
+
+        return vs_paths
 
     def __check_vs(self, opts):
         script_title("* Msvc tool")
@@ -411,17 +414,23 @@ class Builder:
         self.add_global_env("LIBPATH", os.path.join(self.gtk_dir, "lib"))
         self.add_global_env("PATH", os.path.join(self.gtk_dir, "bin"))
 
-        if not opts.vs_install_path:
-            opts.vs_install_path = self.__find_vs_path_with_vs_version(
-                self.__dump_vs_loc()
-            )
-        if opts.vs_install_path is None:
+        if opts.vs_install_path:
+            vs_paths = [opts.vs_install_path]
+        else:
+            vs_paths = self.__find_vs_paths_with_vs_version(self.__dump_vs_loc())
+
+        output = None
+        for path in vs_paths:
+            output = self.__check_good_vs_install(opts, path, False)
+            if output is not None:
+                log.message(f"Using Visual Studio at {path}")
+                break
+
+        if output is None:
             log.error_exit(
                 "Unable to find Visual Studio, try using --vs-ver or --vs-install-path "
                 "to specify Visual Studio version or install location"
             )
-        log.message(f"Using Visual Studio at {opts.vs_install_path}")
-        output = self.__check_good_vs_install(opts, opts.vs_install_path, True)
 
         self.vs_env = {}
         dbg = log.debug_on()
@@ -483,6 +492,8 @@ class Builder:
             proj.mark_file_calc()
             if self.opts.clean:
                 proj.clean = True
+            if self.opts.extra_opts and proj.name in self.opts.extra_opts:
+                proj.extra_opts = self.opts.extra_opts[proj.name]
 
         for proj in Project.list_projects():
             self.__compute_deps(proj)
@@ -525,7 +536,7 @@ class Builder:
         if self.opts.check_hash:
             return
 
-        # List of all the project we can mark for build because of a dependend
+        # List of all the project we can mark for build because of a dependent
         self.prj_to_mark = [x for x in Project._projects if x.is_project()]
 
         self.prj_done = []
@@ -543,11 +554,7 @@ class Builder:
                 if self.__build_one(p):
                     self.prj_skipped.append(p.name)
                 else:
-                    msg = "%-*s (%.3f s)" % (
-                        Project.name_len,
-                        p.name,
-                        time.time() - st,
-                    )
+                    msg = f"{p.name:{Project.name_len}} ({time.time() - st:.3f})"
                     self.prj_done.append(msg)
             except KeyboardInterrupt:
                 traceback.print_exc()
@@ -589,8 +596,7 @@ class Builder:
                     log.message(f"    {p}")
                 miss += len(self.prj_dropped)
 
-            # Don't fool appveyor
-            log.error_exit("%u project(s) missing ;(" % (miss,))
+            log.error_exit("%d project(s) missing ;(")
 
         log.close()
 
@@ -771,12 +777,7 @@ class Builder:
             hc = self.__hashfile(proj.archive_file)
             if hc != proj.hash:
                 log.error_exit(
-                    "Hash mismatch on %s:\n  Calculated '%s'\n  Expected   '%s'\n"
-                    % (
-                        proj.archive_file,
-                        hc,
-                        proj.hash,
-                    )
+                    f"Hash mismatch on {proj.archive_file}:\n  Calculated '{hc}'\n  Expected   '{proj.hash}'\n"
                 )
                 return True
 
@@ -795,21 +796,14 @@ class Builder:
             if perc != self._old_perc:
                 perc = min(perc, 100)
                 self._old_perc = perc
-                sp = "%s (%u k) - %u%%" % (
-                    self._downloading_file,
-                    total_size / 1024,
-                    self._old_perc,
-                )
+                sp = f"{self._downloading_file} ({total_size // 1024} kB) - {self._old_perc:.0f}%"
                 print(sp, end="\r")
                 if len(sp) > self._old_print:
                     # Save the len to delete the line when we change file
                     self._old_print = len(sp)
         else:
             # Only the current, we don't know the size
-            sp = "%s - %u k" % (
-                self._downloading_file,
-                c_size / 1024,
-            )
+            sp = f"{self._downloading_file} - {c_size // 1024} kB"
             print(sp, end="\r")
             if len(sp) > self._old_print:
                 self._old_print = len(sp)
@@ -834,14 +828,7 @@ class Builder:
         msg = f"Opening {url} ..."
         print(msg, end="\r")
         with contextlib.closing(urlopen(url, None, context=ssl_ctx)) as fp:
-            print(
-                "%*s"
-                % (
-                    len(msg),
-                    "",
-                ),
-                end="\r",
-            )
+            print(f"{'':>{len(msg)}}", end="\r")
             headers = fp.info()
 
             with open(filename, "wb") as tfp:
@@ -867,7 +854,7 @@ class Builder:
 
         if size >= 0 and read < size:
             raise ContentTooShortError(
-                "retrieval incomplete: got only %i out of %i bytes" % (read, size),
+                f"retrieval incomplete: got only {read} out of {size} bytes",
                 result,
             )
 
@@ -917,9 +904,7 @@ class Builder:
                 raise
         log.end()
 
-        print(
-            "%-*s" % (self._old_print, f"{proj.archive_file} - Download finished"),
-        )
+        print(f"{proj.archive_file:{self._old_print}} - Download finished")
         return self.__check_hash(proj)
 
     def __sub_vars(self, s):
@@ -977,7 +962,7 @@ class Builder:
         # set platform
         rustup = os.path.join(cargo_home, "rustup.exe")
         self.__execute(
-            f'{rustup} default {rust_version}-{"i686" if self.x86 else "x86_64"}-pc-windows-msvc',
+            f"{rustup} default {rust_version}-{'i686' if self.x86 else 'x86_64'}-pc-windows-msvc",
             env=env,
         )
 

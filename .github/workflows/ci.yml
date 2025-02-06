@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  python_version: '3.12'
+  python_version: '3.13'
 
 name: CI
 
@@ -25,27 +25,28 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, 'skip ci') }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Set up Python
-        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: ${{ env.python_version }}
-      - name: Lint with Pre-commit
-        uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-      - name: Install the latest version of rye
-        uses: eifinger/setup-rye@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@4db96194c378173c656ce18a155ffc14a9fc4355 # v5.2.2
         with:
           enable-cache: true
-      - name: Sync Python Dependencies
-        run: |
-          rye pin ${{ env.python_version }}
-          rye sync
+          cache-dependency-glob: ".pre-commit-config.yaml"
+      - name: Install pre-commit
+        run: uv tool install pre-commit --with pre-commit-uv
+      - name: Lint with pre-commit
+        run: pre-commit run --show-diff-on-failure --color=always --all-files
+      - name: Check uv lock file integrity
+        run: uv lock --locked --offline
 
   test:
     needs: lint
@@ -58,29 +59,27 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, 'skip ci') }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
         with:
           egress-policy: audit
 
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: Set up Python
-        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
-      - name: Install the latest version of rye
-        uses: eifinger/setup-rye@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@4db96194c378173c656ce18a155ffc14a9fc4355 # v5.2.2
         with:
           enable-cache: true
-      - name: Sync Python Dependencies
-        run: |
-          rye pin ${{ matrix.python-version }}
-          rye sync
-      - name: Test with tox
-        run: rye run tox
+          cache-dependency-glob: "uv.lock"
+      - name: Install the project
+        run: uv sync
+      - name: Install tox
+        run: uv tool install tox --with tox-uv
+      - name: Setup test suite
+        run: tox run --notest --skip-missing-interpreters false
+      - name: Run test suite
+        run: tox run --skip-pkg-install
 
   build:
     needs: lint
@@ -96,62 +95,70 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
         with:
           egress-policy: audit
 
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: Install the latest version of rye
-        uses: eifinger/setup-rye@v4
-      - name: Check Rye lock file integrity
-        run: |
-          rye sync
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: ${{ env.python_version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@4db96194c378173c656ce18a155ffc14a9fc4355 # v5.2.2
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - name: Seed pip
+        run: uv venv --seed
+      - name: Install the project
+        run: uv sync --no-dev
       - name: Build GTK3
         if: matrix.gtk-version == '3'
         run: >
-          rye run gvsbuild build --ninja-opts -j2 gtk3 gtksourceview4 graphene
-          glib-networking
+          uv run gvsbuild build --ninja-opts -j2 --enable-gi --py-wheel gtk3 gtksourceview4 graphene pygobject
+          adwaita-icon-theme glib-networking
       - name: Build GTK4
         if: matrix.gtk-version == '4'
         run: > # Use -j2 option to prevent out of memory errors with GitHub Action runners
-          rye run gvsbuild build --ninja-opts -j2 --enable-gi --py-wheel gobject-introspection
-          gtk4 libadwaita gtksourceview5 pygobject pycairo adwaita-icon-theme gtkmm
+          uv run gvsbuild build --ninja-opts -j2 --enable-gi --py-wheel gtk4 libadwaita gtksourceview5 pygobject
+          adwaita-icon-theme gtkmm
       - name: Copy wheel files
-        if: matrix.gtk-version == '4'
         run: |
           New-Item "C:\gtk-build\gtk\x64\release\wheels" -ItemType "directory"
           Copy-Item (Resolve-Path C:\gtk-build\build\x64\release\pygobject\dist\PyGObject*.whl) "C:\gtk-build\gtk\x64\release\wheels"
           Copy-Item (Resolve-Path C:\gtk-build\build\x64\release\pycairo\dist\pycairo*.whl) "C:\gtk-build\gtk\x64\release\wheels"
       - name: Archive GTK runtime
-        if: matrix.gtk-version == '4'
         run: 7z a -tzip GTK${{ matrix.gtk-version }}_Gvsbuild_${{ github.sha }}_x64.zip C:\gtk-build\gtk\x64\release\*
       - name: Upload GTK${{ matrix.gtk-version }}_Gvsbuild-${{ github.sha }}_x64.zip
-        if: matrix.GTK-version == '4'
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: GTK${{ matrix.gtk-version }}_Gvsbuild_${{ github.sha }}_x64.zip
           path: GTK${{ matrix.gtk-version }}_Gvsbuild_${{ github.sha }}_x64.zip
       - name: Upload Release Assets
-        if: github.event_name == 'release' && matrix.gtk-version == '4'
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mv GTK${{ matrix.gtk-version }}_Gvsbuild_${{ github.sha }}_x64.zip GTK${{ matrix.gtk-version }}_Gvsbuild_${{ github.event.release.tag_name }}_x64.zip
           gh release upload ${{ github.event.release.tag_name }} "GTK${{ matrix.gtk-version }}_Gvsbuild_${{ github.event.release.tag_name }}_x64.zip"
+      - name: Cleanup Zip Files
+        if: github.event_name == 'release'
+        run: rm GTK${{ matrix.gtk-version }}_Gvsbuild_${{ github.event.release.tag_name }}_x64.zip
       - name: Create Source Dist and Wheel
         if: matrix.gtk-version == '4'
-        run: rye build
+        run: uv build
       - name: Upload gvsbuild-${{ github.event.release.tag_name }}.tar.gz
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         if: github.event_name == 'release' && matrix.gtk-version == '4'
         with:
           name: gvsbuild-${{ github.event.release.tag_name }}.tar.gz
           path: dist/gvsbuild-${{ github.event.release.tag_name }}.tar.gz
       - name: Upload gvsbuild-${{ github.event.release.tag_name }}-py3-none-any.whl
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         if: github.event_name == 'release' && matrix.gtk-version == '4'
         with:
           name: gvsbuild-${{ github.event.release.tag_name }}-py3-none-any.whl
@@ -175,4 +182,4 @@ jobs:
           name: gvsbuild-${{ github.event.release.tag_name }}-py3-none-any.whl
           path: dist
       - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@0ab0b79471669eb3a4d647e625009c62f9f3b241 # release/v1
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4

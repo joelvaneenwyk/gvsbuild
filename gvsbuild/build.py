@@ -15,7 +15,6 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import List
 
 import typer
 
@@ -57,6 +56,16 @@ def __get_projects_to_build(opts):
                 log.debug(f"Dropped project {s}")
                 to_build.remove(p)
     return to_build
+
+
+def __parse_extra_opts(extra_opts: list[str]) -> dict[str, list[str]]:
+    if extra_opts is None:
+        return {}
+    parsed_opts = {}
+    for eo in extra_opts:
+        project, opts = eo.split(":")
+        parsed_opts[project] = opts.split(";")
+    return parsed_opts
 
 
 class Platform(str, Enum):
@@ -104,7 +113,7 @@ class PythonVersion(str, Enum):
 
 
 def build(
-    projects: List[str] = typer.Argument(..., help="The project to build"),
+    projects: list[str] = typer.Argument(..., help="The project to build"),
     platform: Platform = typer.Option(Platform.x64, help="The platform to build for"),
     configuration: Configuration = typer.Option(
         Configuration.debug_optimized,
@@ -207,7 +216,7 @@ def build(
         help="Command line options to pass to msbuild.",
         rich_help_panel="Options to Pass to Build Systems",
     ),
-    skip: List[str] = typer.Option(
+    skip: list[str] = typer.Option(
         None,
         help="Project to avoid building, can be run multiple times.",
         rich_help_panel="Skip and Cleanup Options",
@@ -316,6 +325,12 @@ def build(
         help="Command line options to pass to cargo",
         rich_help_panel="Options to Pass to Build Systems",
     ),
+    extra_opts: list[str] = typer.Option(
+        None,
+        help="Additional command line options to pass to specific project."
+        " Example: --extra_opts <project>:<option1>[;<option1>...]",
+        rich_help_panel="Options to Pass to Build Systems",
+    ),
     git_expand_dir: Path = typer.Option(
         None,
         help="The directory where the projects from git are expanded and updated.",
@@ -391,6 +406,7 @@ def build(
     opts.log_single = log_single
     opts.cargo_opts = cargo_opts
     opts.ninja_opts = ninja_opts
+    opts.extra_opts = __parse_extra_opts(extra_opts)
     opts.capture_out = capture_out
     opts.print_out = print_out
 

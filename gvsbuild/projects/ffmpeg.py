@@ -26,9 +26,9 @@ class Ffmpeg(Tarball, Project):
         Project.__init__(
             self,
             "ffmpeg",
-            version="7.0.2",
+            version="7.1",
             archive_url="https://ffmpeg.org/releases/ffmpeg-{version}.tar.xz",
-            hash="8646515b638a3ad303e23af6a3587734447cb8fc0a0c064ecdb8e95c4fd8b389",
+            hash="40973d44970dbc83ef302b0609f2e74982be2d85916dd2ee7472d30678a7abe6",
             dependencies=[
                 "dav1d",
                 "nasm",
@@ -49,8 +49,7 @@ class Ffmpeg(Tarball, Project):
         )
         msys_path = Project.get_tool_path("msys2")
         self.exec_vs(
-            r"%s\bash build\build.sh %s %s %s %s"
-            % (
+            r"{}\bash build\build.sh {} {} {} {}".format(
                 msys_path,
                 convert_to_msys(self.pkg_dir),
                 convert_to_msys(self.builder.gtk_dir),

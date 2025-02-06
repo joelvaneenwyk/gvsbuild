@@ -120,13 +120,13 @@ Note: Visual Studio versions 2013 (not for all projects), 2015, 2017, 2019, and 
 1. With your admin PowerShell terminal:
 
    ```PowerShell
-   winget install --id Python.Python.3.12 -e --source winget
+   winget install --id Python.Python.3.13 -e --source winget
    ```
 
 2. Open a PowerShell terminal as a normal user and check the python version:
 
    ```PowerShell
-   py -3.12 --version
+   py -3.13 --version
    ```
 
 ### Prerequisites // Chocolately
@@ -182,13 +182,13 @@ Note: Visual Studio versions 2013 (not for all projects), 2015, 2017, 2019, and 
 1. With your admin PowerShell terminal:
 
    ```PowerShell
-   choco install python312
+   choco install python313
    ```
 
 2. Open a PowerShell terminal as a normal user and check the python version:
 
    ```PowerShell
-   py -3.12 --version
+   py -3.13 --version
    ```
 
 ### Install `gvsbuild`
@@ -197,8 +197,8 @@ The recommended way to install gvsbuild is with pipx. Open a new regular user
 PowerShell terminal and execute:
 
 ```PowerShell
-py -3.12 -m pip install --user pipx
-py -3.12 -m pipx ensurepath
+py -3.13 -m pip install --user pipx
+py -3.13 -m pipx ensurepath
 pipx install gvsbuild
 ```
 

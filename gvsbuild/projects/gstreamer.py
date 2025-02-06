@@ -40,11 +40,12 @@ class GStreamer(Tarball, Meson):
             self,
             "gstreamer",
             repository="https://gitlab.freedesktop.org/gstreamer/gstreamer",
-            version="1.24.7",
+            version="1.24.12",
             lastversion_even=True,
             archive_url="https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-{version}.tar.xz",
-            hash="c0e75b124c52bb7a0c3dcdb734b2ad260ea7286a8745cf2ea629d4c849e6a958",
+            hash="b3522d1b4fe174fff3b3c7f0603493e2367bd1c43f5804df15b634bd22b1036f",
             dependencies=["meson", "ninja", "glib", "orc"],
+            patches=[],
         )
 
         if self.opts.enable_gi:
@@ -70,11 +71,11 @@ class Orc(Tarball, Meson):
         Project.__init__(
             self,
             "orc",
-            version="0.4.39",
+            version="0.4.40",
             lastversion_even=True,
             repository="https://gitlab.freedesktop.org/gstreamer/orc",
             archive_url="https://gstreamer.freedesktop.org/src/orc/orc-{version}.tar.xz",
-            hash="33ed2387f49b825fa1b9c3b0072e05f259141b895474ad085ae51143d3040cc0",
+            hash="3fc2bee78dfb7c41fd9605061fc69138db7df007eae2f669a1f56e8bacef74ab",
             dependencies=["meson", "ninja"],
         )
 
@@ -90,10 +91,10 @@ class GstPluginsBase(Tarball, Meson):
             self,
             "gst-plugins-base",
             repository="https://gitlab.freedesktop.org/gstreamer/gstreamer",
-            version="1.24.7",
+            version="1.24.12",
             lastversion_even=True,
             archive_url="https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-{version}.tar.xz",
-            hash="1528d1746a393299f5ac17ebf13a32a660202f1e29d0a852a2250f6a059a2fda",
+            hash="f6efbaa8fea8d00bc380bccca76a530527b1f083e8523eafb3e9b1e18bc653d3",
             dependencies=[
                 "meson",
                 "ninja",
@@ -127,10 +128,10 @@ class GstPluginsGood(Tarball, Meson):
             self,
             "gst-plugins-good",
             repository="https://gitlab.freedesktop.org/gstreamer/gstreamer",
-            version="1.24.7",
+            version="1.24.12",
             lastversion_even=True,
             archive_url="https://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-{version}.tar.xz",
-            hash="759acb11e6de8373ff8cbb5e7ab8eb9a38631be81cf24220267b001eb55593c1",
+            hash="d0e66e2f935d1575f6adbef7d0a2b3faba7360344383c51bf0233b39e0489a64",
             dependencies=[
                 "meson",
                 "ninja",
@@ -151,15 +152,18 @@ class GstPluginsBad(Tarball, Meson):
             self,
             "gst-plugins-bad",
             repository="https://gitlab.freedesktop.org/gstreamer/gstreamer",
-            version="1.24.7",
+            version="1.24.12",
             lastversion_even=True,
             archive_url="https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-{version}.tar.xz",
-            hash="75d513fc0ba635fb1f39786d890b73fbac5f4bc88ff39f2a9ff62f4b8f428f22",
+            hash="3d386af3d1dbd1a06c74a6251250c269b481e703f0e3255ba89ef6c1e063afea",
             dependencies=[
                 "meson",
                 "ninja",
                 "gst-plugins-base",
+                "libnice",
                 "webrtc-audio-processing",
+                "openssl",
+                "libsrtp2",
             ],
             patches=[
                 "wasapisink-reduce-buffer-latency.patch",
@@ -191,10 +195,10 @@ class GstPluginsUgly(Tarball, Meson):
             self,
             "gst-plugins-ugly",
             repository="https://gitlab.freedesktop.org/gstreamer/gstreamer",
-            version="1.24.7",
+            version="1.24.12",
             lastversion_even=True,
             archive_url="https://gstreamer.freedesktop.org/src/gst-plugins-ugly/gst-plugins-ugly-{version}.tar.xz",
-            hash="3dc954fc53fe18883670322a1c215e3c6529036e0a69b30f64781cd40c268593",
+            hash="19ed6eef4ea1a742234fb35e2cdb107168595a4dd409a9fac0b7a16543eee78b",
             dependencies=["meson", "ninja", "gst-plugins-base"],
         )
 
@@ -210,10 +214,10 @@ class GstDevTools(Tarball, Meson):
             self,
             "gst-devtools",
             repository="https://gitlab.freedesktop.org/gstreamer/gstreamer",
-            version="1.24.7",
+            version="1.24.12",
             lastversion_even=True,
             archive_url="https://gstreamer.freedesktop.org/src/gst-devtools/gst-devtools-{version}.tar.xz",
-            hash="e7aa7a23fa587d58dc5a7bb51efb5ad79f6f2a4c5987564c66f633b5bbd38b17",
+            hash="4ef3dd12e5827068d6db7ad01876d1216a80717116c24a0d5b3b57fd7e3c3478",
             dependencies=["meson", "ninja", "json-glib"],
         )
 
@@ -237,10 +241,10 @@ class GstPython(Tarball, Meson):
             self,
             "gst-python",
             repository="https://gitlab.freedesktop.org/gstreamer/gstreamer",
-            version="1.24.7",
+            version="1.24.12",
             lastversion_even=True,
             archive_url="https://gstreamer.freedesktop.org/src/gst-python/gst-python-{version}.tar.xz",
-            hash="6c3ee02b20c80a86e24245b06102dae00e017686f27407626f44dc03ac3ca53a",
+            hash="d679e2ca3e655a7328627c4670c324fc22f588d2cb8ecd2fa7a6a42df51132cc",
             dependencies=["meson", "ninja", "pygobject", "gst-plugins-base"],
             patches=["0001-fix-python3-not-found.patch"],
         )
@@ -248,3 +252,23 @@ class GstPython(Tarball, Meson):
     def build(self):
         Meson.build(self)
         self.install(r".\COPYING share\doc\gst-python")
+
+
+@project_add
+class GstLibav(Tarball, Meson):
+    def __init__(self):
+        Project.__init__(
+            self,
+            "gst-libav",
+            repository="https://gitlab.freedesktop.org/gstreamer/gstreamer",
+            version="1.24.12",
+            lastversion_even=True,
+            archive_url="https://gstreamer.freedesktop.org/src/gst-libav/gst-libav-{version}.tar.xz",
+            hash="ef72c1c70a17b3c0bb283d16d09aba496d3401c927dcf5392a8a7866d9336379",
+            # TODO try remove gst-plugins-base
+            dependencies=["meson", "ninja", "pygobject", "ffmpeg", "gst-plugins-base"],
+        )
+
+    def build(self):
+        Meson.build(self)
+        self.install(r".\COPYING share\doc\gst-libav")

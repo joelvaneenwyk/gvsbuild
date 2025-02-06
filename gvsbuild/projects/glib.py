@@ -24,11 +24,11 @@ class GLibBase(Tarball, Meson):
         Meson.__init__(
             self,
             "glib-base",
-            version="2.82.0",
+            version="2.82.4",
             lastversion_even=True,
             repository="https://gitlab.gnome.org/GNOME/glib",
             archive_url="https://download.gnome.org/sources/glib/{major}.{minor}/glib-{version}.tar.xz",
-            hash="f4c82ada51366bddace49d7ba54b33b4e4d6067afa3008e4847f41cb9b5c38d3",
+            hash="37dd0877fe964cd15e9a2710b044a1830fb1bd93652a6d0cb6b8b2dff187c709",
             dependencies=[
                 "ninja",
                 "meson",
@@ -40,7 +40,12 @@ class GLibBase(Tarball, Meson):
             ],
             patches=[
                 "001-glib-package-installation-directory.patch",
-                "0001-gsocket-windows-check-event-before-calling-WSAEnumNe.patch",
+                "002-gsocket-windows-check-event-before-calling-WSAEnumNe.patch",
+                "003-gpoll-windows-use-a-threadpool-when-polling-large-nu.patch",
+                # https://gitlab.gnome.org/GNOME/glib/-/merge_requests/4391
+                "004-fix-python-path-can-contain-spaces.patch",
+                "0001-registrybackend-make-subscribe-and-unsubscribe-threa.patch",
+                "0002-registrybackend-fix-some-memory-leaks.patch",
             ],
         )
         self.add_param("-Dman-pages=disabled")
@@ -63,15 +68,20 @@ class GLib(Tarball, Meson):
         Meson.__init__(
             self,
             "glib",
-            version="2.82.0",
+            version="2.82.4",
             lastversion_even=True,
             repository="https://gitlab.gnome.org/GNOME/glib",
             archive_url="https://download.gnome.org/sources/glib/{major}.{minor}/glib-{version}.tar.xz",
-            hash="f4c82ada51366bddace49d7ba54b33b4e4d6067afa3008e4847f41cb9b5c38d3",
+            hash="37dd0877fe964cd15e9a2710b044a1830fb1bd93652a6d0cb6b8b2dff187c709",
             dependencies=["glib-base"],
             patches=[
                 "001-glib-package-installation-directory.patch",
-                "0001-gsocket-windows-check-event-before-calling-WSAEnumNe.patch",
+                "002-gsocket-windows-check-event-before-calling-WSAEnumNe.patch",
+                "003-gpoll-windows-use-a-threadpool-when-polling-large-nu.patch",
+                # https://gitlab.gnome.org/GNOME/glib/-/merge_requests/4391
+                "004-fix-python-path-can-contain-spaces.patch",
+                "0001-registrybackend-make-subscribe-and-unsubscribe-threa.patch",
+                "0002-registrybackend-fix-some-memory-leaks.patch",
             ],
         )
         self.add_param("-Dman-pages=disabled")
@@ -96,11 +106,11 @@ class GLibNetworking(Tarball, Meson):
         Project.__init__(
             self,
             "glib-networking",
-            version="2.80.0",
+            version="2.80.1",
             lastversion_even=True,
             repository="https://gitlab.gnome.org/GNOME/glib-networking",
             archive_url="https://download.gnome.org/sources/glib-networking/{major}.{minor}/glib-networking-{version}.tar.xz",
-            hash="d8f4f1aab213179ae3351617b59dab5de6bcc9e785021eee178998ebd4bb3acf",
+            hash="b80e2874157cd55071f1b6710fa0b911d5ac5de106a9ee2a4c9c7bee61782f8e",
             dependencies=[
                 "pkgconf",
                 "ninja",
@@ -109,9 +119,7 @@ class GLibNetworking(Tarball, Meson):
                 "openssl",
                 "gsettings-desktop-schemas",
             ],
-            patches=[
-                "add-null-check-in-complete_handshake.patch",
-            ],
+            patches=[],
         )
 
     def build(self):

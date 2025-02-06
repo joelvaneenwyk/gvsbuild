@@ -28,7 +28,7 @@ class ToolCargo(Tool):
         Tool.__init__(
             self,
             "cargo",
-            version="1.81.0",
+            version="1.84.1",
             repository="rust-lang/rust",
             archive_url="https://win.rustup.rs/x86_64",
             archive_filename="rustup-init.exe",
@@ -49,7 +49,7 @@ class ToolCargo(Tool):
         env["CARGO_HOME"] = self.build_dir
 
         toolchain = (
-            f'{self.version}-{"i686" if self.opts.x86 else "x86_64"}-pc-windows-msvc'
+            f"{self.version}-{'i686' if self.opts.x86 else 'x86_64'}-pc-windows-msvc"
         )
         subprocess.run(
             f"{self.archive_file} --no-modify-path --default-toolchain {toolchain} -y",
@@ -66,9 +66,9 @@ class ToolCmake(Tool):
         Tool.__init__(
             self,
             "cmake",
-            version="3.30.3",
+            version="3.31.5",
             archive_url="https://github.com/Kitware/CMake/releases/download/v{version}/cmake-{version}-windows-x86_64.zip",
-            hash="2b339f738d3dea408d1523c99bb24d2d82b169f5749a698225ecfdf2f0d1c314",
+            hash="d4d2d4b9ccd68dae975a066fcd42ea9807ef40f79ee6971923fd3788e7917585",
             dir_part="cmake-{version}-windows-x86_64",
         )
 
@@ -93,10 +93,10 @@ class ToolMeson(Tool):
         Tool.__init__(
             self,
             "meson",
-            version="1.5.1",
+            version="1.7.0",
             archive_url="https://github.com/mesonbuild/meson/archive/refs/tags/{version}.tar.gz",
             archive_filename="meson-{version}.tar.gz",
-            hash="55f6acd5bf72c14d4aa5a781993633f84a1d117bdf2c2057735902ced9b81390",
+            hash="a6ca46e2a11a0278bb6492ecd4e0520ff441b164ebfdef1e012b11beb848d26e",
             dir_part="meson-{version}",
             exe_name="meson.py",
         )
@@ -209,10 +209,10 @@ class ToolGo(Tool):
         Tool.__init__(
             self,
             "go",
-            version="1.23.1",
+            version="1.23.5",
             repository="https://github.com/golang/go",
             archive_url="https://go.dev/dl/go{version}.windows-amd64.zip",
-            hash="32dedf277c86610e380e1765593edb66876f00223df71690bd6be68ee17675c0",
+            hash="96d74945d7daeeb98a7978d0cf099321d7eb821b45f5c510373d545162d39c20",
             dir_part="go-{version}",
         )
 

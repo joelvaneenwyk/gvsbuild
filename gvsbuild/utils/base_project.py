@@ -21,7 +21,7 @@ import pathlib
 import re
 import shutil
 from enum import Enum
-from typing import Dict, Generic, List, Tuple, TypeVar
+from typing import Generic, TypeVar
 
 from .simple_ui import log
 from .utils import _rmtree_error_handler
@@ -73,6 +73,7 @@ class Options:
         self.log_single = False
         self.cargo_opts = None
         self.ninja_opts = None
+        self.extra_opts = None
         self.capture_out = False
         self.print_out = False
         self.git_expand_dir = None
@@ -108,7 +109,7 @@ class Project(Generic[P]):
         self.extra_env = {}
         self.tag = None
         self.repo_url = None
-        self.archive_filename = None
+        self.extra_opts = None
 
         for k in kwargs:
             setattr(self, k, kwargs[k])
@@ -137,13 +138,13 @@ class Project(Generic[P]):
         # register version params for use from derived classes
         self.version_params = version_params
 
-    _projects: List[P] = []
-    _names: List[str] = []
-    _dict: Dict[str, P] = {}
+    _projects: list[P] = []
+    _names: list[str] = []
+    _dict: dict[str, P] = {}
     _ver_res = None
     name_len = 0
     # List of class/type to add, now not at import time but after some options are parsed
-    _reg_prj_list: List[Tuple[P, ProjectType]] = []
+    _reg_prj_list: list[tuple[P, ProjectType]] = []
     # build option
     opts = Options()
 
@@ -206,7 +207,7 @@ class Project(Generic[P]):
             add_path=add_path,
         )
 
-    def _msbuild_make_search_replace(self, org_platform):
+    def _msbuild_make_search_replace(self, org_platform: str) -> tuple[bytes, bytes]:
         """Return the search & replace strings (converted to bytes to update
         the platform Toolset version (v140, v141, ...) to use a new compiler,
         e.g. to use vs2017 solution's files for vs2019.
@@ -225,7 +226,7 @@ class Project(Generic[P]):
             dst_platform = "143"
         else:
             dst_platform = f"{ver}0"
-        search = (">v%u</PlatformToolset>" % (org_platform,)).encode("utf-8")
+        search = f">v{org_platform}</PlatformToolset>".encode()
         replace = f">v{dst_platform}</PlatformToolset>".encode()
 
         return search, replace

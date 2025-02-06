@@ -39,7 +39,7 @@ class Project_gtk_base(Tarball, Project, MakeGir):
             self.builder.exec_cmd(cmd, working_dir=self._get_working_dir())
         self.pop_location()
 
-        self.install(r".\COPYING share\doc\%s" % self.name)
+        self.install(rf".\COPYING share\doc\{self.name}")
 
 
 @project_add
@@ -90,12 +90,12 @@ class Gtk3(Tarball, Meson):
             self,
             "gtk3",
             prj_dir="gtk3",
-            version="3.24.43",
+            version="3.24.48",
             lastversion_major=3,
             lastversion_even=True,
             repository="https://gitlab.gnome.org/GNOME/gtk",
-            archive_url="https://download.gnome.org/sources/gtk%2B/{major}.{minor}/gtk%2B-{version}.tar.xz",
-            hash="7e04f0648515034b806b74ae5d774d87cffb1a2a96c468cb5be476d51bf2f3c7",
+            archive_url="https://download.gnome.org/sources/gtk/{major}.{minor}/gtk-{version}.tar.xz",
+            hash="d10ce9ea9df44c1016d8d1721f39e55d3d607fcfb85334aec0d236cdc9a70556",
             dependencies=["atk", "gdk-pixbuf", "pango", "libepoxy"],
             patches=[
                 "gtk_update_icon_cache.patch",
@@ -122,12 +122,12 @@ class Gtk4(Tarball, Meson):
             self,
             "gtk4",
             prj_dir="gtk4",
-            version="4.16.0",
+            version="4.16.12",
             lastversion_major=4,
             lastversion_even=True,
             repository="https://gitlab.gnome.org/GNOME/gtk",
             archive_url="https://download.gnome.org/sources/gtk/{major}.{minor}/gtk-{version}.tar.xz",
-            hash="8ef538778c82c09870a6cc325195049caec5593c1ca37df915a7b6b10f5524ea",
+            hash="ef31bdbd6f082c4401634a20c850b0050c9bf252ef1e079764ee95a2a0c4c95a",
             dependencies=[
                 "gdk-pixbuf",
                 "pango",

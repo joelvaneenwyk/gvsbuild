@@ -24,9 +24,9 @@ class Libzip(Tarball, CmakeProject):
         Project.__init__(
             self,
             "libzip",
-            version="1.10.1",
+            version="1.11.3",
             archive_url="https://libzip.org/download/libzip-{version}.tar.gz",
-            hash="9669ae5dfe3ac5b3897536dc8466a874c8cf2c0e3b1fdd08d75b273884299363",
+            hash="76653f135dde3036036c500e11861648ffbf9e1fc5b233ff473c60897d9db0ea",
             dependencies=["cmake", "ninja", "zlib"],
         )
 

@@ -23,9 +23,9 @@ class SQLite(Tarball, Project):
         Project.__init__(
             self,
             "sqlite",
-            version="3.46.1",
-            archive_url="https://www.sqlite.org/2024/sqlite-autoconf-{major}{minor:0<3}{micro:0<3}.tar.gz",
-            hash="67d3fe6d268e6eaddcae3727fce58fcc8e9c53869bdd07a0c61e38ddf2965071",
+            version="3.48.0",
+            archive_url="https://www.sqlite.org/2025/sqlite-autoconf-{major}{minor:0<3}{micro:0<3}.tar.gz",
+            hash="ac992f7fca3989de7ed1fe99c16363f848794c8c32a158dafd4eb927a2e02fd5",
         )
 
     def build(self):

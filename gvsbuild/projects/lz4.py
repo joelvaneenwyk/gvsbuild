@@ -28,13 +28,17 @@ class Lz4(Tarball, Meson):
             archive_url="https://github.com/lz4/lz4/archive/v{version}.tar.gz",
             archive_filename="lz4-{version}.tar.gz",
             hash="537512904744b35e232912055ccf8ec66d768639ff3abe5788d90d792ec5f48b",
+            dependencies=[
+                "meson",
+                "ninja",
+            ],
         )
 
         self.add_param("-Dossfuzz=false")
 
     def build(self):
-        Meson.push_location(self, "build/meson")
+        self.push_location(r".\build\meson")
         Meson.build(self)
-        Meson.pop_location(self)
+        self.pop_location()
 
         self.install(r".\lib\LICENSE share\doc\lz4")
