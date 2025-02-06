@@ -72,6 +72,9 @@ link-mode = "copy"
 [tool.uv.pip]
 universal = true
 
+[tool.mypy]
+python_version = "3.9"
+
 [[tool.mypy.overrides]]
 module = "lastversion"
 ignore_missing_imports = true
@@ -134,9 +137,10 @@ addopts = [
 
 [tool.ruff]
 line-length = 88
+target-version = "py39"
 
 [tool.ruff.lint]
-ignore = ["E501"]
+ignore = ["E501", "UP037"]
 select = [
     "B",
     "B9",
