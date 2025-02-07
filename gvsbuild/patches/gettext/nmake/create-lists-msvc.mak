@@ -40,8 +40,8 @@ NULL=
 !if [call create-lists.bat header gettext-runtime-objs.mak intl_runtime_OBJS]
 !endif
 
-!if ("$(INTL_RUNTIME_SRCS)" != "")
-!if [for %s in ($(INTL_RUNTIME_SRCS)) do if "%~xs" == ".c" @call create-lists.bat file gettext-runtime-objs.mak "vs^$(VSVER)\^$(CFG)\^$(PLAT)\intl-runtime\%~ns.obj"]
+!ifdef INTL_RUNTIME_SRCS
+!if [for %s in ($(INTL_RUNTIME_SRCS)) do @if "%~xs" == ".c" @call create-lists.bat file gettext-runtime-objs.mak "vs^$(VSVER)\^$(CFG)\^$(PLAT)\intl-runtime\%~ns.obj"]
 !endif
 !endif
 
@@ -54,7 +54,9 @@ NULL=
 !if [call create-lists.bat header gettext-runtime-objs.mak grt_OBJS]
 !endif
 
-!if [for %s in ($(GETTEXT_RUNTIME_BASE_GNULIB_SRCS)) do if "%~xs" == ".c" @call create-lists.bat file gettext-runtime-objs.mak "vs^$(VSVER)\^$(CFG)\^$(PLAT)\grt\%~ns.obj"]
+!ifdef GETTEXT_RUNTIME_BASE_GNULIB_SRCS
+!if [for %s in ($(GETTEXT_RUNTIME_BASE_GNULIB_SRCS)) do @if "%~xs" == ".c" @call create-lists.bat file gettext-runtime-objs.mak "vs^$(VSVER)\^$(CFG)\^$(PLAT)\grt\%~ns.obj"]
+!endif
 !endif
 
 !if [for %s in (..\gettext-runtime\gnulib-lib\glthread\*.c) do @call create-lists.bat file gettext-runtime-objs.mak "vs^$(VSVER)\^$(CFG)\^$(PLAT)\grt\%~ns.obj"]
