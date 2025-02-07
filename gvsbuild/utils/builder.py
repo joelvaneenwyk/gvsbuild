@@ -385,7 +385,7 @@ class Builder:
 
         add_opts = f" {opts.win_sdk_ver}" if opts.win_sdk_ver else ""
         cmd = f'cmd.exe /D /C ""{vcvars_bat}"{add_opts}>NUL 2>&1 && set"'
-        log.log(f'Running script: {cmd}')
+        log.log(f"Running script: {cmd}")
         if not os.path.exists(vcvars_bat):
             if not exit_missing:
                 return None
