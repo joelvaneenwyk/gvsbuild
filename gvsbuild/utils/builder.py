@@ -384,7 +384,8 @@ class Builder:
                 )
 
         add_opts = f" {opts.win_sdk_ver}" if opts.win_sdk_ver else ""
-        log.log(f'Running script "{vcvars_bat}"{add_opts}')
+        cmd = f'cmd.exe /D /C ""{vcvars_bat}"{add_opts}>NUL 2>&1 && set"'
+        log.log(f'Running script: {cmd}')
         if not os.path.exists(vcvars_bat):
             if not exit_missing:
                 return None
@@ -393,9 +394,7 @@ class Builder:
             log.error_exit(
                 f"\n  {vcvars_bat} could not be found.\n  Please check you have Visual Studio installed at {vs_path}\n  and that it supports the target platform {opts.platform}."
             )
-        return subprocess.check_output(
-            f'cmd.exe /d /c ""{vcvars_bat}"{add_opts}>NUL && set"', text=True
-        )
+        return subprocess.check_output(cmd, text=True)
 
     def __find_vs_paths_with_vs_version(self, paths):
         # Don't match version with data (e.g. vs version 17 with vs 2017)
@@ -1029,13 +1028,17 @@ class Builder:
         if add_path:
             env = dict(env) if env is not None else dict(os.environ)
             self.__add_path(env, add_path)
+        if isinstance(args, str):
+            cmd = f"cmd.exe /D /E:ON /C {args}"
+        else:
+            cmd = ["cmd.exe", "/D", "/E:ON", "/C"] + args
         if self.opts.capture_out:
             try:
                 res = subprocess.run(
-                    args,
+                    cmd,
                     cwd=working_dir,
                     env=env,
-                    shell=True,
+                    shell=False,
                     check=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
@@ -1050,7 +1053,7 @@ class Builder:
 
             log.messages_dump(res.stdout, prt=self.opts.print_out)
         else:
-            subprocess.check_call(args, cwd=working_dir, env=env, shell=True)
+            subprocess.check_call(cmd, cwd=working_dir, env=env, shell=False)
 
     def __add_path(self, env, folder):
         key = next((k for k in env if k.lower() == "path"), None)
